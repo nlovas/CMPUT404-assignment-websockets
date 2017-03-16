@@ -57,3 +57,14 @@ Contributors
 
 * Mark Galloway
 * Abram Hindle
+* Nicole Lovas
+
+Resources:  
+
+Collaborated with Jillian Lovas, CCID jlovas
+
+Referenced Ryan Satyabrata's code:
+(https://github.com/kobitoko/CMPUT404-assignment-websockets) (https://github.com/kobitoko)
+
+Read with websockets:
+http://www.guguncube.com/2740/python-simple-websockets-example-using-flask-and-gevent

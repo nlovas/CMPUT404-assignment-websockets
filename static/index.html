@@ -6,7 +6,7 @@
     <meta content='width=device-width; height=device-height; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;' name='viewport' />
     <meta name="viewport" content="width=device-width" />
     <meta name="license" content="
-        Copyright 2013 Google, Abram Hindle
+        Copyright 2017 Google, Abram Hindle, Nicole Lovas
         
         Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -35,6 +35,9 @@ var W = canvas.width  = window.innerWidth-6;
 var H = canvas.height = window.innerHeight-50;
 var wscounter = 0;
 var socket;
+var timer = new Date().getTime() / 1000;;
+var seconds;
+var count = 0;
 
 function debug(str) {
     var debugDiv = document.getElementById('debug');
@@ -52,16 +55,46 @@ function drawCircle(context,entity) {
         var x = entity["x"];
         var y = entity["y"];
         //moveTo(x,y);
-        fillStyle = entity["colour"];
-        strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
-        stroke();                                
+        //fillStyle = entity["image"];
+
+seconds = new Date().getTime() / 1000;
+	console.log(seconds - timer);
+	if( seconds - timer > 1){
+        count++;
+	timer = seconds;
+	if(count==2) count=0;
+	}
+
+	var pkball = new Image();
+	pkball.src = "Pokeball.PNG";  
+
+	var pkball2 = new Image();
+	pkball2.src = "Pokeball2.PNG"; 
+	var can = document.getElementById("c");  
+//console.log(count);   
+	//strokeStyle = fillStyle;
+        //arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
+        //stroke();
+
+switch (count){
+    case 0:
+drawImage(pkball,x,y,50,50);
+    break;
+    case 1:
+drawImage(pkball2,x,y,50,50);
+    break;
+    default:
+drawImage(pkball,x,y,50,50);
+	}
+
+	                                
     }
 }
 
 function prepEntity(entity) {
-    if (!entity["colour"]) {
-        entity["colour"] = "#FF0000";
+    if (!entity["image"]) {
+	
+
     }
     if (!entity["radius"]) {
         entity["radius"] = 50;
@@ -121,8 +154,48 @@ function getPosition(e) {
 	}
 }
 
+function sendJSONXMLHTTPRequest(url, objects, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState==4) {
+            try {
+                if (xhr.status==200) {
+                    //XXX: parse some JSON from the request!
+                    //XXX: Pass the data to the callback!
+		    if(callback !== null){
+		    callback(JSON.parse(xhr.responseText));
+		    }
+                }
+            } 
+            catch(e) {
+                alert('Error: ' + e.name);
+            }
+        }
+    };
+    //XXX: POST to a URL
+    //XXX: set the mimetype and the accept headers!
+    // Remember to use application/json !
+	if(objects === null){ //doing a GET request
+	xhr.open("GET", url, true);
+	xhr.send();
+	}	
+	else{ //doing a POST request
+	xhr.open("POST", url, true);
+	xhr.setRequestHeader("Content-Type", "application/json");
+	xhr.setRequestHeader("Accept", "*");
+	xhr.send(JSON.stringify(objects));
+	}	
+	
+	
+}
+
+
 function addEntity(entity, data) {
     world[entity] = data;
+	var url = "/entity/" + entity;
+	
+	sendJSONXMLHTTPRequest(url, data, null);
+
     drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
 }
@@ -231,15 +304,15 @@ mouse = (function() {
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
+    addEntityWithoutName({'x':x,'y':y,'image':'pokeball'});
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'red'});
+    addEntityWithoutName({'x':x,'y':y,'image':'pokeball'});
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'green',
+    addEntityWithoutName({'x':x,'y':y,'image':'greatball',
                           'radius':10});
 });
 
