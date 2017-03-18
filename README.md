@@ -66,5 +66,20 @@ Collaborated with Jillian Lovas, CCID jlovas
 Referenced Ryan Satyabrata's code:
 (https://github.com/kobitoko/CMPUT404-assignment-websockets) (https://github.com/kobitoko)
 
+Copied and edited code from Abram Hindle:
+https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py
+
 Read with websockets:
 http://www.guguncube.com/2740/python-simple-websockets-example-using-flask-and-gevent
+
+Pokeball image, public domain:
+https://en.wikipedia.org/wiki/File:Pokeball.PNG
+
+Used code from here to used greenlets and subscribe function:
+https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py
+
+Understanding Python Dictionary functions: 
+https://www.tutorialspoint.com/python/python_dictionary.htm
+
+Understanding websocket functions:
+https://www.tutorialspoint.com/html5/html5_websocket.htm

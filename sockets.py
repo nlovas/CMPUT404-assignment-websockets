@@ -59,7 +59,19 @@ class World:
     def world(self):
         return self.space
 
-myWorld = World()        
+#copied from Abram Hindle https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py 
+class Client:
+    def __init__(self):
+        self.queue = queue.Queue()
+
+    def put(self, v):
+        self.queue.put_nowait(v)
+
+    def get(self):
+       return self.queue.get()
+
+myWorld = World()  
+clients = list()  #from Abram Hindle https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py    
 
 def set_listener( entity, data ):
     ''' do something with the update ! '''
@@ -71,28 +83,55 @@ def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
     return redirect('/static/index.html')
 
+#send_all_json and send_all copied from Abram Hindle https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py
+def send_all_json(obj):
+    send_all( json.dumps(obj) )
+
+def send_all(msg):
+    for client in clients:
+         client.put( msg )
+
 def read_ws(ws,client):
     '''A greenlet function that reads from the websocket and updates the world'''
     # XXX: TODO IMPLEMENT ME
-    while True: #http://www.guguncube.com/2740/python-simple-websockets-example-using-flask-and-gevent
-	#also refrenced Ryan's code to verify correctness
-		message = ws.receive()
-		if message is None:
-		    break
-		data = json.loads(message) #in a form we can understand
-		print(data)		
-		#myWorld.set(data[0],data[1]) NOT DONE YET
+    try:    
 
-    return None
+		while True: #http://www.guguncube.com/2740/python-simple-websockets-example-using-flask-and-gevent
+		#also refrenced Ryan's code to verify correctness (https://github.com/kobitoko/CMPUT404-assignment-websockets/blob/master/sockets.py) and (https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py)
+			message = ws.receive()
+			if message is None:
+			    break
+			data = json.loads(message) #in a form we can understand
+			print "HHHHHHHHIIIIIIIIIIIIIIIII"
+			print(data)
+			myWorld.set(data.keys()[0],data.items()[0][1]) # or data.values()[0]
+			send_all_json( json.loads(data)) #send to all		
+			
+    except Exception as e:
+          print "Exception in ws_read: %s" %e
+      # return None
 
 @sockets.route('/subscribe')
 def subscribe_socket(ws):
     '''Fufill the websocket URL of /subscribe, every update notify the
        websocket and read updates from the websocket '''
     # XXX: TODO IMPLEMENT ME
+    #code from: https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py
+    client = Client()
+    clients.append(client)
+    g = gevent.spawn( read_ws, ws, client )    
+    try:
+	while True:
+	    # block here
+	    msg = client.get()
+	    ws.send(msg)
+    except Exception as e:
+	print "WS Error %s" % e
+    finally:
+	clients.remove(client)
+        gevent.kill(g)
 
-
-    return None
+#    return None
 
 
 def flask_post_json():

@@ -58,7 +58,7 @@ function drawCircle(context,entity) {
         //fillStyle = entity["image"];
 
 seconds = new Date().getTime() / 1000;
-	console.log(seconds - timer);
+	//console.log(seconds - timer);
 	if( seconds - timer > 1){
         count++;
 	timer = seconds;
@@ -160,8 +160,6 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
         if (xhr.readyState==4) {
             try {
                 if (xhr.status==200) {
-                    //XXX: parse some JSON from the request!
-                    //XXX: Pass the data to the callback!
 		    if(callback !== null){
 		    callback(JSON.parse(xhr.responseText));
 		    }
@@ -312,7 +310,7 @@ mouse.mouseuppers.push(function(x,y,clicked,e) {
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'image':'greatball',
+    addEntityWithoutName({'x':x,'y':y,'image':'pokeball',
                           'radius':10});
 });
 
@@ -323,10 +321,22 @@ function update() {
 
 
 function wsSetup() {
-    var url = "ws://"+host+"/subscribe";   
+    var url = "ws://"+host+"/subscribe"; 
+    console.log(url);  
     socket = new WebSocket(url);
     socket.onopen = function() {
         //XXX: TODO What are you going to do here?
+	//get the world
+	var url = "/world/";
+	sendJSONXMLHTTPRequest(url, null, function(tmp){ 
+	if(world !== tmp){
+	world = tmp;
+	//console.log(world);
+        drawNextFrame();
+	}
+	});
+	
+	
     };
     socket.onerror = function(msg) {
         debug("WebSocket Error:" + msg.data);
@@ -334,7 +344,16 @@ function wsSetup() {
     socket.onmessage = function(msg) {  
         try {
             debug("WebSocket Recv:" + msg.data);
-            //XXX: TODO What are you going to do here?            
+            //XXX: TODO What are you going to do here?  
+	    //referenced Ryan's code https://github.com/kobitoko/CMPUT404-assignment-websockets/blob/master/static/index.html
+		drawNextFrame(); 
+		var dta = JSON.parse(msg.data);
+		//put received value into our world
+		var key = Objects.keys(dta);
+		world[key] = dta[key];
+		
+
+          
         } catch (e) {
             alert("socket on message: " + e);
         }
