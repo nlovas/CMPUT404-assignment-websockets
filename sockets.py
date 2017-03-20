@@ -97,16 +97,16 @@ def read_ws(ws,client):
     try:    
 
 		while True: #http://www.guguncube.com/2740/python-simple-websockets-example-using-flask-and-gevent
-		#also refrenced Ryan's code to verify correctness (https://github.com/kobitoko/CMPUT404-assignment-websockets/blob/master/sockets.py) and (https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py)
+		#also refrenced Ryan's code to verify correctness (https://github.com/kobitoko/CMPUT404-assignment-websockets/blob/master/sockets.py) and (https://github.com/abramhindle/WebSocketsExamples/blob/master/chat.py)		
+			
 			message = ws.receive()
 			if message is None:
 			    break
 			data = json.loads(message) #in a form we can understand
-			print "HHHHHHHHIIIIIIIIIIIIIIIII"
-			print(data)
 			myWorld.set(data.keys()[0],data.items()[0][1]) # or data.values()[0]
-			send_all_json( json.loads(data)) #send to all		
-			
+			send_all_json( json.loads(message)) #send to all	
+	
+    	        #print "break bro"		
     except Exception as e:
           print "Exception in ws_read: %s" %e
       # return None

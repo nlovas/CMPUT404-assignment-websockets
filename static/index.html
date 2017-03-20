@@ -161,6 +161,7 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
             try {
                 if (xhr.status==200) {
 		    if(callback !== null){
+		    //console.log("ok!!");
 		    callback(JSON.parse(xhr.responseText));
 		    }
                 }
@@ -193,7 +194,11 @@ function addEntity(entity, data) {
 	var url = "/entity/" + entity;
 	
 	sendJSONXMLHTTPRequest(url, data, null);
-
+//send it to the websocket
+	var tuple = {};
+	tuple[entity] = data;  //{entity : data }
+	var tmp = JSON.stringify(tuple);
+	socket.send(tmp);
     drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
 }
@@ -322,12 +327,13 @@ function update() {
 
 function wsSetup() {
     var url = "ws://"+host+"/subscribe"; 
-    console.log(url);  
+    //console.log(url);  
     socket = new WebSocket(url);
     socket.onopen = function() {
         //XXX: TODO What are you going to do here?
 	//get the world
-	var url = "/world/";
+	//console.log("opened");
+	var url = "/world";
 	sendJSONXMLHTTPRequest(url, null, function(tmp){ 
 	if(world !== tmp){
 	world = tmp;
@@ -346,10 +352,11 @@ function wsSetup() {
             debug("WebSocket Recv:" + msg.data);
             //XXX: TODO What are you going to do here?  
 	    //referenced Ryan's code https://github.com/kobitoko/CMPUT404-assignment-websockets/blob/master/static/index.html
+		console.log("received!!!");
 		drawNextFrame(); 
 		var dta = JSON.parse(msg.data);
 		//put received value into our world
-		var key = Objects.keys(dta);
+		var key = Object.keys(dta);
 		world[key] = dta[key];
 		
 
